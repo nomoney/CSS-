@@ -1,0 +1,9 @@
+jade 
+  2016-06-01
+    extends 扩展jade 模板（extends ../layout.jade）
+    black 匹配  模块（black css/ black javascript）
+    script.  =>   jade模板中编写 Javascript
+    '-'  => 边上jade 编写动态语句 ( -if else if  else)   -for(var i=0; i< num; i++)
+    # => id (#header) . => class   html 标签写属性    a.link(href="javascript:;" name="btn")
+  
+  
