@@ -1,0 +1,80 @@
+gulp  插件
+
+  "fs": "0.0.2",                   读取文件   fs.readfileSync(file,格式)
+  "gulp": "^3.9.1",                 
+  "gulp-concat": "^2.6.0",        合并
+  "gulp-data": "^1.2.1",          data(json)--->   
+  "gulp-imagemin": "^2.4.0",      图片压缩
+  "gulp-jade": "^1.1.0",          jade template
+  "gulp-jshint": "^2.0.0",         js 检查
+  "gulp-load-plugins": "^1.2.2",          载入插件
+  "gulp-minify-css": "^1.2.4",         压缩css
+  "gulp-minify-html": "^1.0.6",        压缩html
+  "gulp-plumber": "^1.1.0",           
+  "gulp-rename": "^1.2.2",             重命名
+  "gulp-sass": "^2.2.0",               sass
+  "gulp-slim": "^0.3.0",              slim
+  "gulp-uglify": "^1.5.3",              压缩js
+  "path": "^0.12.7"                       path.basename(获取文件名)
+  
+  
+  ex:
+    'use strict';
+    var gulp= require('gulp');
+    var plugins= require('gulp-load-plugins')();
+    var fs= require('fs');
+    var path= require('path');
+    var browserSync= require('browser-sync');
+    var pngguant= require('imagemin-pngquant');
+    // var slim= require('gulp-slim');
+    
+    
+    
+    gulp.task('html', function(){
+    	gulp.src('srcs/jade/volvo_v40/*.jade')
+    	.pipe(plugins.plumber())
+    	.pipe(plugins.data(function(file){
+    		return JSON.parse(fs.readFileSync('srcs/json/'+path.basename(file.path, '.jade')+'.json'));
+    	}))
+    	.pipe(plugins.jade({pretty: false}))
+    	.pipe(gulp.dest('dist/volvo_v40/'));
+    })
+    gulp.task('reload',['html'],browserSync.reload);
+    
+    gulp.task('sass',function(){
+    	gulp.src('srcs/jade/volvo_v40/scss/*.scss')
+    	.pipe(plugins.sass({outputStyle: 'compressed'}))
+    	.pipe(gulp.dest("dist/volvo_v40/css"));
+    })
+    gulp.task('minifyJs',function(){
+    	gulp.src('srcs/jade/volvo_v40/js/*.js')
+    	.pipe(plugins.uglify())
+    	.pipe(gulp.dest("dist/volvo_v40/js"));
+    })
+    gulp.task('imagemin', function(){
+    	return gulp.src('srcs/jade/volvo_v40/images/*')
+    	.pipe(plugins.imagemin({progressive: true, use: [pngguant()]}))
+    	.pipe(gulp.dest('dist/volvo_v40/images'));
+    });
+    gulp.task('concatJs',function(){
+    	return gulp.src(['srcs/jade/volvo_v40/libs/*.js','srcs/jade/volvo_v40/js/*.js'])
+    	.pipe(plugins.concat('all.js'))
+    	.pipe(plugins.uglify())
+    	.pipe(gulp.dest("dist/volvo_v40/js"));
+    })
+    gulp.task('default', ['html','sass'], function(){
+    	browserSync({
+    		server: {
+    			baseDir: './dist/volvo_v40'
+    		}
+    	});
+    	gulp.watch('srcs/jade/volvo_v40/js/*.js',['minifyJs']);
+    	gulp.watch('srcs/jade/volvo_v40/scss/*.scss',['sass']);
+    	gulp.watch('srcs/json/*.json',['reload']);
+    
+    	gulp.watch('srcs/jade/volvo_v40/jade/**/*.jade',['reload']);
+    });
+  
+  
+  
+  
